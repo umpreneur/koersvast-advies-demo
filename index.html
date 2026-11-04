@@ -83,7 +83,22 @@ header.site .wrap { display: flex; align-items: center; justify-content: space-b
 .menu-toggle i { width: 18px; height: 12px; display: block; border-block: 2px solid currentColor; position: relative; }
 .menu-toggle i::after { content: ""; position: absolute; left: 0; right: 0; top: 3px; border-top: 2px solid currentColor; }
 .menu-toggle[aria-expanded="true"] { background: var(--petrol); color: var(--on-petrol); border-color: var(--petrol); }
-@media (max-width: 1040px) {
+.menu { order: 1; margin-left: auto; }
+.lang { order: 2; display: inline-flex; flex: none; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.lang button { font: 600 0.82rem/1 var(--font); min-width: 38px; min-height: 40px; padding: 0 0.55rem; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.lang button:hover { color: var(--fg); }
+.lang button[aria-pressed="true"] { background: var(--petrol); color: var(--on-petrol); }
+.lang button:focus-visible { outline-offset: -3px; }
+.menu-toggle { order: 3; }
+@media (max-width: 1100px) {
+  header.site .wrap { gap: 0.5rem; }
+  .menu { margin-left: 0; }
+  .lang { margin-left: auto; }
+}
+@media (max-width: 400px) {
+  .menu-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (max-width: 1100px) {
   .menu-toggle { display: inline-flex; }
   .menu { display: none; position: absolute; left: 0; right: 0; top: 100%; background: var(--bg); border-bottom: 1px solid var(--line); flex-direction: column; align-items: stretch; gap: 0; padding: 0.5rem max(16px, env(safe-area-inset-right, 0px)) 1.25rem max(16px, env(safe-area-inset-left, 0px)); max-height: calc(100dvh - 70px); overflow-y: auto; }
   .menu.open { display: flex; }
@@ -260,7 +275,11 @@ footer .logo i::before { background: #6f9a9e; }
 <header class="site">
   <div class="wrap">
     <a class="logo" href="#home"><i aria-hidden="true"></i>Koersvast</a>
-    <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="menu"><i aria-hidden="true"></i>Menu</button>
+    <div class="lang" role="group" aria-label="Taal">
+      <button type="button" data-lang="nl" lang="nl" aria-label="Nederlands" aria-pressed="true" data-no-i18n>NL</button>
+      <button type="button" data-lang="en" lang="en" aria-label="English" aria-pressed="false" data-no-i18n>EN</button>
+    </div>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="menu"><i aria-hidden="true"></i><span class="menu-label" id="menuLabel" data-no-i18n>Menu</span></button>
     <div class="menu" id="menu">
       <nav aria-label="Hoofdmenu">
         <a href="#home">Home</a>
@@ -649,6 +668,220 @@ footer .logo i::before { background: #6f9a9e; }
 
 <script>
 (function () {
+  // AANPASSEN: Engelse teksten. Links staat de Nederlandse tekst precies zoals op de pagina, rechts de vertaling.
+  // Pas je een Nederlandse tekst aan, wijzig die dan ook hier. Zonder vertaling blijft de Nederlandse tekst staan.
+  const EN = {
+    'Onafhankelijk adviesbureau voor strategie, organisatie, financiën en data.': 'Independent consultancy for strategy, organisation, finance and data.',
+    '· Koersvast Advies en alle namen, cijfers en gegevens zijn fictief. Het formulier verstuurt niets.': '· Koersvast Advies and all names, figures and details are fictional. The form does not send anything.',
+    'Taal': 'Language',
+    'Hoofdmenu': 'Main menu',
+    'Sluiten': 'Close',
+    'Over ons': 'About us',
+    'Diensten': 'Services',
+    'Cases': 'Case studies',
+    'Nieuws': 'News',
+    'Werken bij': 'Careers',
+    'Afspraak maken': 'Book a meeting',
+
+    // Home
+    'Strategie · Organisatie · Financiën · Data': 'Strategy · Organisation · Finance · Data',
+    'Helder advies. Meetbaar resultaat.': 'Clear advice. Measurable results.',
+    'Koersvast helpt directies in het mkb en de publieke sector om beter te presteren. Met een vaste aanpak, een vaste prijs en één vast aanspreekpunt.': 'Koersvast helps management teams in SMEs and the public sector perform better. With a set approach, a fixed price and one point of contact.',
+    'Onze diensten': 'Our services',
+    'projecten afgerond': 'projects completed',
+    '12 jaar': '12 years',
+    'ervaring': 'of experience',
+    '8,6': '8.6',
+    'klantwaardering': 'client rating',
+    'adviseurs': 'consultants',
+    'Waar we u mee helpen': 'How we can help you',
+    'Alle diensten': 'All services',
+    'Strategie': 'Strategy',
+    'Een heldere koers met duidelijke keuzes.': 'A clear direction with clear choices.',
+    'Organisatie': 'Organisation',
+    'Structuur, rollen en verandering met draagvlak.': 'Structure, roles and change with real support.',
+    'Financiën & control': 'Finance & control',
+    'Begroting, prognoses en grip op kosten.': 'Budgets, forecasts and control over costs.',
+    'Data & rapportage': 'Data & reporting',
+    'Stuurinformatie waar u op kunt bouwen.': 'Management information you can rely on.',
+    'Resultaten bij klanten': 'Client results',
+    'Alle cases': 'All case studies',
+    'Laatste nieuws': 'Latest news',
+    'Alle berichten': 'All articles',
+    'Werk aan vraagstukken die ertoe doen': 'Work on challenges that matter',
+    "We zoeken adviseurs die graag resultaat zien. Je werkt aan uiteenlopende opdrachten met ervaren collega's.": 'We are looking for consultants who like to see results. You work on a wide range of projects with experienced colleagues.',
+    'Bekijk vacatures': 'View vacancies',
+    'Klaar voor de volgende stap?': 'Ready for the next step?',
+    'Plan een vrijblijvend kennismakingsgesprek van een uur.': 'Schedule a one-hour introductory meeting, with no obligation.',
+
+    // Over ons
+    'Een onafhankelijk adviesbureau sinds 2014': 'An independent consultancy since 2014',
+    'We helpen organisaties om plannen om te zetten in resultaat.': 'We help organisations turn plans into results.',
+    'Wie we zijn': 'Who we are',
+    'Van advies naar uitvoering': 'From advice to implementation',
+    'Koersvast is een adviesbureau met 35 adviseurs, gevestigd in Utrecht. We werken voor bedrijven, gemeenten en zorgorganisaties in heel Nederland.': 'Koersvast is a consultancy with 35 consultants, based in Utrecht. We work for companies, municipalities and healthcare organisations throughout the Netherlands.',
+    'Onafhankelijk en in eigendom van de partners': 'Independent and owned by its partners',
+    'Senior adviseurs op elk project': 'Senior consultants on every project',
+    'Vaste prijs per fase': 'Fixed price per phase',
+    'Waarden': 'Values',
+    'Waar we voor staan': 'What we stand for',
+    'Helder': 'Clear',
+    'We zeggen wat we zien en maken keuzes concreet.': 'We say what we see and make choices concrete.',
+    'Resultaatgericht': 'Results-driven',
+    'We meten wat we bereiken, vooraf en achteraf.': 'We measure what we achieve, before and after.',
+    'Betrokken': 'Committed',
+    'We werken naast uw mensen, niet boven hen.': 'We work alongside your people, not above them.',
+    'Erkenningen': 'Recognition',
+    'Lidmaatschappen en keurmerken': 'Memberships and certifications',
+    'Branchevereniging adviseurs': 'Consultants’ trade association',
+    'Erkend leerbedrijf': 'Accredited training company',
+    'Ons team': 'Our team',
+    'Partner organisatie': 'Partner, organisation',
+    'Partner data': 'Partner, data',
+    'Partner financiën': 'Partner, finance',
+
+    // Diensten
+    'Wat wij voor u doen': 'What we do for you',
+    'Vier diensten, elk met een vaste aanpak en een duidelijke prijs.': 'Four services, each with a set approach and a clear price.',
+    'Een meerjarenstrategie die het managementteam zelf kan uitleggen, vertaald naar doelen per afdeling.': 'A multi-year strategy the management team can explain itself, translated into goals for each department.',
+    'Meerjarenplan': 'Multi-year plan',
+    'Markt- en concurrentieanalyse': 'Market and competitor analysis',
+    'Portfoliokeuzes': 'Portfolio choices',
+    'vanaf € 9.500': 'from €9,500',
+    '· 4–6 weken': '· 4–6 weeks',
+    'Organisatie & verandering': 'Organisation & change',
+    'Nieuwe structuur, rollen en overleggen, ingevoerd met draagvlak. Inclusief het adviestraject met de OR.': 'New structure, roles and meetings, introduced with real support. Including the consultation process with the works council.',
+    'Herinrichting': 'Reorganisation',
+    'Veranderbegeleiding': 'Change support',
+    'Leiderschap': 'Leadership',
+    'vanaf € 18.000': 'from €18,000',
+    '· 8–12 weken': '· 8–12 weeks',
+    'Een begroting die klopt en prognoses waarop u kunt sturen. Ook interim controllers beschikbaar.': 'A budget that adds up and forecasts you can steer by. Interim controllers are also available.',
+    'Begroting en prognose': 'Budget and forecast',
+    'Kostenanalyse': 'Cost analysis',
+    'Interim controller': 'Interim controller',
+    'vanaf € 7.500': 'from €7,500',
+    '· 3–6 weken': '· 3–6 weeks',
+    "Een handvol kpi's die kloppen, in een dashboard dat de directie elke maand gebruikt.": 'A handful of accurate KPIs, in a dashboard the management team uses every month.',
+    'Kpi-ontwerp': 'KPI design',
+    'Dashboards': 'Dashboards',
+    'Maandrapportage': 'Monthly reporting',
+    'vanaf € 6.500': 'from €6,500',
+    '· 3–5 weken': '· 3–5 weeks',
+    'Werkwijze': 'Approach',
+    'Zo werken we samen': 'How we work together',
+    'Kennismaken': 'Introduction',
+    'Een gratis gesprek van een uur over uw vraag.': 'A free one-hour meeting about your question.',
+    'Voorstel': 'Proposal',
+    'Binnen 5 werkdagen een plan met vaste prijs.': 'A plan with a fixed price within 5 working days.',
+    'Uitvoering': 'Implementation',
+    'Eén vaste adviseur, elke twee weken een update.': 'One dedicated consultant, with an update every two weeks.',
+    'Borging': 'Handover',
+    'We meten het resultaat en dragen over aan uw team.': 'We measure the results and hand over to your team.',
+    'Welke dienst past bij u?': 'Which service suits you?',
+    'We denken graag vrijblijvend mee.': 'We are happy to think along, with no obligation.',
+    'Neem contact op': 'Contact us',
+
+    // Cases
+    'Wat ons werk oplevert': 'What our work delivers',
+    'Een selectie van recente opdrachten, met het resultaat in cijfers.': 'A selection of recent projects, with the results in figures.',
+    'Alle': 'All',
+    'Financiën': 'Finance',
+    'Gemeente krijgt grip op Wmo-uitgaven': 'Municipality gains control of social support spending',
+    'Middelgrote gemeente': 'Mid-sized municipality',
+    '€ 1,2 mln overschrijding voorkomen': '€1.2m budget overrun prevented',
+    'Drie vestigingen worden één organisatie': 'Three branches become one organisation',
+    'Technische groothandel, 230 fte': 'Technical wholesaler, 230 FTE',
+    'Positief OR-advies in 4 maanden': 'Positive works council advice in 4 months',
+    'Nieuwe meerjarenstrategie voor zorggroep': 'New multi-year strategy for a healthcare group',
+    'Regionale zorgaanbieder': 'Regional healthcare provider',
+    '3 speerpunten, gedragen door 40 managers': '3 priorities, backed by 40 managers',
+    'Kostenbesparing in inkoop en facilitair': 'Cost savings in purchasing and facilities',
+    'Onderwijsinstelling': 'Educational institution',
+    '8% lagere kosten per jaar': '8% lower costs per year',
+    'Maandrapportage voor woningcorporatie': 'Monthly reporting for a housing association',
+    'Woningcorporatie, 11.000 woningen': 'Housing association, 11,000 homes',
+    'Rapportage van 40 naar 8 pagina’s': 'Report cut from 40 to 8 pages',
+    'Herinrichting klantenservice': 'Customer service reorganisation',
+    'Energieleverancier': 'Energy supplier',
+    '−35% wachttijd aan de telefoon': '−35% telephone waiting time',
+
+    // Nieuws
+    'Nieuws & inzichten': 'News & insights',
+    'Actualiteiten, projecten en inzichten van onze adviseurs.': 'News, projects and insights from our consultants.',
+    'Inzicht': 'Insight',
+    'Bedrijf': 'Company',
+    'Gemeente bespaart € 1,2 miljoen met nieuwe stuurinformatie': 'Municipality saves €1.2 million with new management information',
+    'Met zes heldere indicatoren ziet de gemeente afwijkingen nu binnen weken.': 'With six clear indicators, the municipality now spots deviations within weeks.',
+    'Vijf signalen dat uw organisatie toe is aan een nieuwe structuur': 'Five signs your organisation is ready for a new structure',
+    'Herkent u deze knelpunten? Dan is het tijd om de organisatie te herzien.': 'Do you recognise these bottlenecks? Then it is time to review your organisation.',
+    'Koersvast opent tweede kantoor in Rotterdam': 'Koersvast opens second office in Rotterdam',
+    'Vanaf november zijn we ook in Rotterdam gevestigd.': 'From November, we are also based in Rotterdam.',
+    'Zorggroep presenteert nieuwe strategie': 'Healthcare group presents new strategy',
+    'Drie speerpunten voor de komende vijf jaar, samen opgesteld met 40 managers.': 'Three priorities for the next five years, developed together with 40 managers.',
+    'Waarom de meeste dashboards niet worden gebruikt': 'Why most dashboards go unused',
+    'Minder cijfers, betere besluiten: zo kiest u de juiste kpi’s.': 'Fewer figures, better decisions: how to choose the right KPIs.',
+    'Twee nieuwe partners bij Koersvast': 'Two new partners at Koersvast',
+    'Ons partnerteam groeit met ervaring in financiën en zorg.': 'Our partner team grows with experience in finance and healthcare.',
+
+    // Werken bij
+    'Carrière bij Koersvast': 'Careers at Koersvast',
+    "Werk aan uitdagende opdrachten met ervaren collega's. We groeien en zoeken versterking.": 'Work on challenging projects with experienced colleagues. We are growing and looking for new talent.',
+    'Wat we bieden': 'What we offer',
+    'Waarom bij ons werken': 'Why work with us',
+    'Groei': 'Growth',
+    'Persoonlijk opleidingsbudget van € 3.000 per jaar.': 'A personal training budget of €3,000 per year.',
+    'Flexibel': 'Flexible',
+    'Hybride werken en een leaseauto of NS Business Card.': 'Hybrid working and a lease car or public transport card.',
+    'Goede voorwaarden': 'Good terms',
+    '13e maand, winstdeling en een goed pensioen.': '13th-month pay, profit sharing and a good pension.',
+    'Vacatures': 'Vacancies',
+    'Openstaande vacatures': 'Open vacancies',
+    'Senior adviseur strategie': 'Senior strategy consultant',
+    '32–40 uur': '32–40 hours',
+    '8+ jaar ervaring': '8+ years’ experience',
+    '€ 5.800 – € 7.600': '€5,800 – €7,600',
+    'Solliciteer': 'Apply',
+    'Adviseur organisatie': 'Organisation consultant',
+    '36–40 uur': '36–40 hours',
+    '3+ jaar ervaring': '3+ years’ experience',
+    '€ 4.200 – € 5.600': '€4,200 – €5,600',
+    'Utrecht / hybride': 'Utrecht / hybrid',
+    'HBO / WO': 'Bachelor / Master',
+    '€ 4.400 – € 5.900': '€4,400 – €5,900',
+    'Afstudeerstage bedrijfskunde': 'Graduation internship, business administration',
+    '5 maanden': '5 months',
+    '€ 650 p/m': '€650 per month',
+    'Geen passende vacature?': 'No suitable vacancy?',
+    'Stuur ons een open sollicitatie.': 'Send us an open application.',
+    'Open sollicitatie': 'Open application',
+
+    // Contact
+    'Neem contact met ons op': 'Get in touch',
+    'Bel, mail of vul het formulier in. We reageren binnen 1 werkdag.': 'Call, email or fill in the form. We respond within 1 working day.',
+    'Telefoon': 'Phone',
+    'E-mail': 'Email',
+    'Bezoekadres': 'Visiting address',
+    'Voorbeeldstraat 1': 'Example Street 1',
+    'Openingstijden': 'Opening hours',
+    'Maandag t/m vrijdag': 'Monday to Friday',
+    'Stuur een bericht': 'Send a message',
+    'Naam': 'Name',
+    'Onderwerp': 'Subject',
+    'Sollicitatie': 'Job application',
+    'Overig': 'Other',
+    'Bericht': 'Message',
+    'Waar kunnen we u mee helpen?': 'How can we help you?',
+    'Verstuur bericht': 'Send message',
+    'Vul uw naam en een geldig e-mailadres in.': 'Enter your name and a valid email address.',
+    'Demo: dit formulier is nog niet gekoppeld, er is niets verzonden.': 'Demo: this form is not connected yet, nothing has been sent.',
+
+    // Footer
+    'KvK 12345678': 'Chamber of Commerce 12345678'
+  };
+  let lang = 'nl';
+  const t = s => (lang === 'en' && EN[s]) || s;
+
   // AANPASSEN: cases. Categorie moet overeenkomen met een filterknop. De eerste 3 verschijnen op Home.
   const CASES = [
     { title: 'Gemeente krijgt grip op Wmo-uitgaven', client: 'Middelgrote gemeente', result: '€ 1,2 mln overschrijding voorkomen', cat: 'Data', scene: 'chart' },
@@ -668,7 +901,8 @@ footer .logo i::before { background: #6f9a9e; }
     { date: '2026-06-17', cat: 'Bedrijf', title: 'Twee nieuwe partners bij Koersvast', text: 'Ons partnerteam groeit met ervaring in financiën en zorg.', scene: 'meeting' }
   ];
   const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
-  const fmt = d => { const [y, m, day] = d.split('-').map(Number); return day + ' ' + MONTHS[m - 1] + ' ' + y; };
+  const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const fmt = d => { const [y, m, day] = d.split('-').map(Number); return day + ' ' + (lang === 'en' ? MONTHS_EN : MONTHS)[m - 1] + ' ' + y; };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   document.querySelectorAll('[data-cases]').forEach(el => {
@@ -714,7 +948,7 @@ footer .logo i::before { background: #6f9a9e; }
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
     const c = canvas.getContext('2d');
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     const scene = canvas.dataset.scene, r = rng(SEEDS[scene] || 3);
@@ -802,7 +1036,7 @@ footer .logo i::before { background: #6f9a9e; }
   function setMenu(open) {
     menu.classList.toggle('open', open);
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.lastChild.textContent = open ? 'Sluiten' : 'Menu';
+    document.getElementById('menuLabel').textContent = t(open ? 'Sluiten' : 'Menu');
   }
   toggle.addEventListener('click', () => setMenu(!menu.classList.contains('open')));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
@@ -831,20 +1065,69 @@ footer .logo i::before { background: #6f9a9e; }
   // Contact form: validates in the page; submits for real only when the form has an action URL
   const form = document.getElementById('contactForm');
   const status = document.getElementById('formStatus');
+  let statusMsg = '';
+  status.setAttribute('data-no-i18n', '');
   form.addEventListener('submit', function (e) {
     const naam = form.naam.value.trim(), email = form.email.value.trim();
     if (!naam || !email || !form.email.checkValidity()) {
       e.preventDefault();
-      status.textContent = 'Vul uw naam en een geldig e-mailadres in.';
+      statusMsg = 'Vul uw naam en een geldig e-mailadres in.';
+      status.textContent = t(statusMsg);
       status.hidden = false;
       (naam ? form.email : form.naam).focus();
       return;
     }
     if (form.getAttribute('action')) return;
     e.preventDefault();
-    status.textContent = 'Demo: dit formulier is nog niet gekoppeld, er is niets verzonden.';
+    statusMsg = 'Demo: dit formulier is nog niet gekoppeld, er is niets verzonden.';
+    status.textContent = t(statusMsg);
     status.hidden = false;
   });
+
+  // Language: ?lang=en in the link, then the visitor's earlier choice, then the browser language
+  const textSource = new WeakMap();
+  function translatePage() {
+    document.documentElement.lang = lang;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: n => n.parentElement.closest('script, style, time, [data-no-i18n]') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    });
+    while (walker.nextNode()) {
+      const n = walker.currentNode;
+      if (!textSource.has(n)) textSource.set(n, n.data);
+      const src = textSource.get(n), key = src.trim();
+      if (key) n.data = src.replace(key, () => t(key));
+    }
+    document.querySelectorAll('[aria-label]:not([data-no-i18n]), [placeholder]').forEach(el => {
+      const attr = el.hasAttribute('placeholder') ? 'placeholder' : 'aria-label';
+      if (!el.dataset.i18nSource) el.dataset.i18nSource = el.getAttribute(attr);
+      el.setAttribute(attr, t(el.dataset.i18nSource));
+    });
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) { if (!desc.dataset.i18nSource) desc.dataset.i18nSource = desc.content; desc.content = t(desc.dataset.i18nSource); }
+    document.querySelectorAll('time[datetime]').forEach(el => { el.textContent = fmt(el.getAttribute('datetime')); });
+    document.querySelectorAll('[data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    if (statusMsg) status.textContent = t(statusMsg);
+    setMenu(menu.classList.contains('open'));
+    paintAll(0);
+  }
+  function setLang(next, remember) {
+    lang = next === 'en' ? 'en' : 'nl';
+    if (remember) {
+      try { localStorage.setItem('lang', lang); } catch (e) {}
+      try {
+        const url = new URL(location.href);
+        if (url.searchParams.has('lang')) { url.searchParams.set('lang', lang); history.replaceState(null, '', url); }
+      } catch (e) {}
+    }
+    translatePage();
+  }
+  document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang, true)));
+  let startLang = new URLSearchParams(location.search).get('lang');
+  if (startLang !== 'nl' && startLang !== 'en') {
+    try { startLang = localStorage.getItem('lang'); } catch (e) { startLang = null; }
+  }
+  if (startLang !== 'nl' && startLang !== 'en') startLang = (navigator.language || '').toLowerCase().startsWith('nl') ? 'nl' : 'en';
+  setLang(startLang, false);
 })();
 </script>
 </body>
