@@ -66,6 +66,7 @@ a { color: inherit; }
 .demo-bar { background: var(--petrol-light); color: var(--fg); font-size: 0.85rem; }
 .demo-bar .wrap { padding-block: 0.55rem; text-align: center; }
 .demo-bar strong { color: var(--petrol); }
+.demo-bar a { color: var(--petrol); font-weight: 700; white-space: nowrap; }
 
 /* header */
 header.site { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); border-bottom: 1px solid var(--line); }
@@ -271,7 +272,7 @@ footer .logo i::before { background: #6f9a9e; }
 <body>
 
 <!-- AANPASSEN: verwijder deze demo-balk als je de website voor een echt bedrijf gebruikt -->
-<div class="demo-bar"><div class="wrap"><strong>Demo</strong> · Koersvast Advies en alle namen, cijfers en gegevens zijn fictief. Het formulier verstuurt niets.</div></div>
+<div class="demo-bar"><div class="wrap"><strong>Demo</strong> · Koersvast Advies en alle namen, cijfers en gegevens zijn fictief. Het formulier verstuurt niets. <a href="https://umpreneur.github.io/onlinedesk/pakket.html?id=bedrijf" data-od-pkg>Bekijk pakketten en prijzen →</a></div></div>
 <header class="site">
   <div class="wrap">
     <a class="logo" href="#home"><i aria-hidden="true"></i>Koersvast</a>
@@ -673,6 +674,7 @@ footer .logo i::before { background: #6f9a9e; }
   const EN = {
     'Onafhankelijk adviesbureau voor strategie, organisatie, financiën en data.': 'Independent consultancy for strategy, organisation, finance and data.',
     '· Koersvast Advies en alle namen, cijfers en gegevens zijn fictief. Het formulier verstuurt niets.': '· Koersvast Advies and all names, figures and details are fictional. The form does not send anything.',
+    'Bekijk pakketten en prijzen →': 'View packages and pricing →',
     'Taal': 'Language',
     'Hoofdmenu': 'Main menu',
     'Sluiten': 'Close',
